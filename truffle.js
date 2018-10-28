@@ -1,5 +1,5 @@
 const HDWalletProvider = require("truffle-hdwallet-provider")
-const { memonic, accessToken } = require('./config.js') 
+const { memonic, accessToken } = require('./config.js')
 
 module.exports = {
   networks: {
