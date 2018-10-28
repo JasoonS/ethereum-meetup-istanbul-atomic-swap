@@ -30,6 +30,40 @@ tokenContract.methods.balanceOf(tokenHTLCAddress).call().then(balance => {
 });
 
 
+const tradeAmount = 100;
+accountsPromise.then(accounts => {
+  let myAccount = accounts[0];
+  tokenContract.methods.approve(tokenHTLCAddress,tradeAmount)
+    .send({from:myAccount})
+    .then(res => console.log(res));
+
+});
+
+accountsPromise.then(accounts => {
+  let myAccount = accounts[0];
+  tokenContract.methods.balanceOf(myAccount).call().then(balance => {
+    console.log("account0's balance is : ");
+    console.log(balance);
+  });
+
+});
+
+// //(uint256 _swapAmount,address _destination)
+// accountsPromise.then(accounts => {
+//   let myAccount = accounts[0];
+//   let destination = accounts[1];
+//   htlcContract.methods.fundSwap(tokenHTLCAddress,destination)
+//     .send({from:myAccount})
+//     .then(res => console.log(res));
+//
+// });
+
+
+// tokenContract.methods.balanceOf(tokenHTLCAddress).call().then(balance => {
+//   console.log("contract's balance is : ");
+//   console.log(balance);
+// });
+
 
 
 
