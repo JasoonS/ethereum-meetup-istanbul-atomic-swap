@@ -57,21 +57,21 @@ contract("HTLC", (accounts) => {
     before(async () => {
       PiedPiperToken = await GenericToken.new("PiedPiperToken","PPC", 12 , 1e27, {from: PiedPiper})
       HooliToken = await GenericToken.new("HooliToken","HOO", 12 , 1e27, {from: Hooli})
-      PiedPiperHTLC = await HTLC.new(secretHash,Hooli, timeManager.duration.days(2) , PiedPiperToken.address, {from:PiedPiper})
-      HooliHTLC = await HTLC.new(secretHash,PiedPiper, timeManager.duration.days(1) , HooliToken.address, {from:Hooli})
+      PiedPiperHTLC = await HTLC.new(secretHash, timeManager.duration.days(2) , PiedPiperToken.address, {from:PiedPiper})
+      HooliHTLC = await HTLC.new(secretHash, timeManager.duration.days(1) , HooliToken.address, {from:Hooli})
 
     })
 
     it('PiedPiper should fund PiedPiperHTLC contract by allowing right to spend amount of swap tokens ', async () => {
       await PiedPiperToken.approve.sendTransaction(PiedPiperHTLC.address, swapPPCAmount, {from:PiedPiper});
-      await PiedPiperHTLC.fundSwap.sendTransaction(swapPPCAmount, {from:PiedPiper});
+      await PiedPiperHTLC.fundSwap.sendTransaction(swapPPCAmount, Hooli, {from:PiedPiper});
       const balanceOfPiedPiperHTLC= await PiedPiperToken.balanceOf.call(PiedPiperHTLC.address)
       balanceOfPiedPiperHTLC.should.be.bignumber.equal(swapPPCAmount)
     })
 
     it('Hoolie should fund HoolieHTLC contract by allowing right to spend amount of swap tokens ', async () => {
       await HooliToken.approve.sendTransaction(HooliHTLC.address, swapHOOAmount, {from:Hooli});
-      await HooliHTLC.fundSwap.sendTransaction(swapHOOAmount,  {from:Hooli});
+      await HooliHTLC.fundSwap.sendTransaction(swapHOOAmount, PiedPiper, {from:Hooli});
       const balanceOfFHooliHTLC= await HooliToken.balanceOf.call(HooliHTLC.address)
       balanceOfFHooliHTLC.should.be.bignumber.equal(swapHOOAmount)
     })
@@ -83,20 +83,20 @@ contract("HTLC", (accounts) => {
     before(async () => {
       PiedPiperToken = await GenericToken.new("PiedPiperToken","PPC", 12 , 1e27, {from: PiedPiper})
       HooliToken = await GenericToken.new("HooliToken","HOO", 12 , 1e27, {from: Hooli})
-      PiedPiperHTLC = await HTLC.new(secretHash,Hooli, timeManager.duration.days(2) , PiedPiperToken.address, {from:PiedPiper})
-      HooliHTLC = await HTLC.new(secretHash,PiedPiper, timeManager.duration.days(1) , HooliToken.address, {from:Hooli})
+      PiedPiperHTLC = await HTLC.new(secretHash, timeManager.duration.days(2) , PiedPiperToken.address, {from:PiedPiper})
+      HooliHTLC = await HTLC.new(secretHash, timeManager.duration.days(1) , HooliToken.address, {from:Hooli})
 
     })
 
     it('Both parties should fund their own HTLCs to swap tokens ', async () => {
 
       await PiedPiperToken.approve.sendTransaction(PiedPiperHTLC.address, swapPPCAmount, {from:PiedPiper})
-      const txHashFirst = await PiedPiperHTLC.fundSwap.sendTransaction(swapPPCAmount, {from:PiedPiper})
+      const txHashFirst = await PiedPiperHTLC.fundSwap.sendTransaction(swapPPCAmount, Hooli,{from:PiedPiper})
       const resultOfFirstFunding = await truffleAssert.createTransactionResult(PiedPiperHTLC,txHashFirst)
       await truffleAssert.eventEmitted(resultOfFirstFunding,'fundLocked')
 
       await HooliToken.approve.sendTransaction(HooliHTLC.address, swapHOOAmount, {from:Hooli})
-      const txHashSecond = await HooliHTLC.fundSwap.sendTransaction(swapHOOAmount, {from:Hooli})
+      const txHashSecond = await HooliHTLC.fundSwap.sendTransaction(swapHOOAmount, PiedPiper, {from:Hooli})
       const resultOfSecondFunding  = await truffleAssert.createTransactionResult(HooliHTLC,txHashSecond)
       await truffleAssert.eventEmitted(resultOfSecondFunding,'fundLocked')
 
